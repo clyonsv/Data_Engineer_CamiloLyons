@@ -10,15 +10,15 @@ services:
       - scheduler
     depends_on:
       redshift:
-        condition: service_healthy
+        condition: service_started
         required: true
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@redshift:5439/data-engineer-database
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@redshift:5432/data-engineer-database
     image: airflow_redshift
     networks:
-      - data_engineer_camilolyons_default
+      default:
     ports:
       - mode: ingress
         target: 8080
@@ -48,11 +48,11 @@ services:
       POSTGRES_USER: camilo_lyv_coderhouse
     image: postgres:12
     networks:
-      - data_engineer_camilolyons_default
+      default:
     ports:
       - mode: ingress
-        target: 5439
-        published: "5439"
+        target: 5432
+        published: "5432"
         protocol: tcp
     volumes:
       - type: volume
@@ -68,14 +68,14 @@ services:
       - webserver
     depends_on:
       airflow:
-        condition: service_healthy
+        condition: service_started
         required: true
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@redshift:5439/data-engineer-database
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@redshift:5432/data-engineer-database
     image: airflow_redshift
     networks:
-      - data_engineer_camilolyons_default
+      default:
     ports:
       - mode: ingress
         target: 8080
@@ -95,11 +95,9 @@ services:
       - type: bind
         source: /workspaces/Data_Engineer_CamiloLyons/plugins
         target: /usr/local/airflow/plugins
-        bind:
-          create_host_path: true
 
 networks:
-  data_engineer_camilolyons_default:
+  default:
     name: data_engineer_camilolyons_default
 
 volumes:

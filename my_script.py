@@ -9,7 +9,7 @@ def main():
     redshift_password = 'cC03egF87w'
     redshift_endpoint = 'data-engineer-cluster.cyhh5bfevlmn.us-east-1.redshift.amazonaws.com'
     redshift_db = 'data-engineer-database'
-    redshift_port = 5439
+    redshift_port = 5432  # Cambiar el puerto a 5432
 
     # Verificación de las credenciales de Redshift
     try:
