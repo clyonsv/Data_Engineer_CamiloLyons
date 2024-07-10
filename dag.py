@@ -1,5 +1,4 @@
 from airflow import DAG
-from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import my_script 
@@ -18,10 +17,10 @@ default_args = {
 }
 
 dag = DAG(
-    'redshift_data_pipeline',
+    'redshift_data_pipeline',  # Nombre fácil y preciso del DAG
     default_args=default_args,
-    description='Pipeline para cargar datos en Redshift',
-    schedule_interval=timedelta(days=1),
+    description='Pipeline para cargar datos en Redshift',  # Descripción clara
+    schedule_interval=timedelta(days=1),  # Ejecución diaria
 )
 
 run_script_task = PythonOperator(

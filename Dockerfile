@@ -1,21 +1,16 @@
-# Usamos una imagen base oficial de Python
+# Utilizar una imagen base de Python ligera
 FROM python:3.9-slim
 
-# Establecemos el directorio de trabajo en el contenedor
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copiamos los archivos necesarios al contenedor
+# Copiar los archivos de script y DAG al contenedor
 COPY my_script.py /app/
 COPY dag.py /app/
+COPY requirements.txt /app/
 
-# Instalamos las dependencias necesarias
-RUN pip install --no-cache-dir \
-    requests \
-    pandas \
-    sqlalchemy \
-    psycopg2-binary \
-    apache-airflow==2.3.3 \
-    apache-airflow-providers-postgres
+# Instalar las dependencias necesarias
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Establecemos el comando por defecto para ejecutar el scheduler de Airflow
+# Comando para iniciar el scheduler de Airflow
 CMD ["airflow", "scheduler"]
