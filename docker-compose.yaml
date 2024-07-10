@@ -17,8 +17,6 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@redshift:5432/data-engineer-database
     image: airflow_redshift
-    networks:
-      default:
     ports:
       - mode: ingress
         target: 8080
@@ -35,11 +33,6 @@ services:
         target: /usr/local/airflow/logs
         bind:
           create_host_path: true
-      - type: bind
-        source: /workspaces/Data_Engineer_CamiloLyons/plugins
-        target: /usr/local/airflow/plugins
-        bind:
-          create_host_path: true
 
   redshift:
     environment:
@@ -47,8 +40,6 @@ services:
       POSTGRES_PASSWORD: cC03egF87w
       POSTGRES_USER: camilo_lyv_coderhouse
     image: postgres:12
-    networks:
-      default:
     ports:
       - mode: ingress
         target: 5432
@@ -74,8 +65,6 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@redshift:5432/data-engineer-database
     image: airflow_redshift
-    networks:
-      default:
     ports:
       - mode: ingress
         target: 8080
@@ -92,9 +81,6 @@ services:
         target: /usr/local/airflow/logs
         bind:
           create_host_path: true
-      - type: bind
-        source: /workspaces/Data_Engineer_CamiloLyons/plugins
-        target: /usr/local/airflow/plugins
 
 networks:
   default:
