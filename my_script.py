@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 from sqlalchemy import create_engine
-import psycopg2
 
 # Configuración de las credenciales de Redshift
 REDSHIFT_USER = 'camilo_lyv_coderhouse'
@@ -13,7 +12,7 @@ REDSHIFT_PORT = 5432
 def get_redshift_engine():
     """Establece la conexión a Redshift y retorna el engine."""
     try:
-        engine = create_engine(f'redshift+psycopg2://{REDSHIFT_USER}:{REDSHIFT_PASSWORD}@{REDSHIFT_ENDPOINT}:{REDSHIFT_PORT}/{REDSHIFT_DB}')
+        engine = create_engine(f'postgresql+psycopg2://{REDSHIFT_USER}:{REDSHIFT_PASSWORD}@{REDSHIFT_ENDPOINT}:{REDSHIFT_PORT}/{REDSHIFT_DB}')
         print("Conexión a Redshift establecida correctamente.")
         return engine
     except Exception as e:
@@ -44,29 +43,14 @@ def transform_data_to_dataframe(data):
 def clean_data(df):
     """Limpia los datos del DataFrame."""
     # Eliminar la columna 'description'
-    df = df.drop(columns=['description'])
+    if 'description' in df.columns:
+        df = df.drop(columns=['description'])
 
     # Verificar nulos y celdas vacías
-    print("Verificación de valores nulos:")
-    print(df.isnull().sum())
-
-    print("Verificación de celdas vacías:")
-    print((df == '').sum())
-
-    # Rellenar o eliminar valores nulos
     df = df.fillna('N/A')
-
-    # Eliminar filas completamente vacías (si las hay)
     df = df.dropna(how='all')
-
-    # Verificar duplicados
-    print("Verificación de valores duplicados:")
-    print(df.duplicated().sum())
-
-    # Eliminar duplicados
     df = df.drop_duplicates()
 
-    # Información final del DataFrame
     print("Información del DataFrame después de la limpieza:")
     print(df.info())
     print(df.head())
@@ -107,10 +91,9 @@ def main():
         return
 
     df = clean_data(df)
-
     load_data_to_redshift(df, engine)
-
     verify_data_in_redshift(engine)
 
 if __name__ == "__main__":
     main()
+

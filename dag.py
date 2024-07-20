@@ -1,11 +1,24 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-import my_script 
+import my_script
 
-# Definir la función que ejecutará el script
-def run_script():
-    my_script.main()
+# Definir las funciones de cada tarea
+def extract_data():
+    url = "https://api-colombia.com/api/v1/Department"
+    return my_script.extract_data_from_api(url)
+
+def transform_data(ti):
+    data = ti.xcom_pull(task_ids='extract_data')
+    df = my_script.transform_data_to_dataframe(data)
+    df_cleaned = my_script.clean_data(df)
+    return df_cleaned
+
+def load_data(ti):
+    df_cleaned = ti.xcom_pull(task_ids='transform_data')
+    engine = my_script.get_redshift_engine()
+    my_script.load_data_to_redshift(df_cleaned, engine)
+    my_script.verify_data_in_redshift(engine)
 
 # Definir el DAG
 default_args = {
@@ -17,14 +30,32 @@ default_args = {
 }
 
 dag = DAG(
-    'redshift_data_pipeline',  # Nombre fácil y preciso del DAG
+    'redshift_data_pipeline', 
     default_args=default_args,
-    description='Pipeline para cargar datos en Redshift',  # Descripción clara
-    schedule_interval=timedelta(days=1),  # Ejecución diaria
+    description='Pipeline para cargar datos en Redshift',
+    schedule_interval=timedelta(days=1),
 )
 
-run_script_task = PythonOperator(
-    task_id='run_script',
-    python_callable=run_script,
+# Definir las tareas del DAG
+extract_task = PythonOperator(
+    task_id='extract_data',
+    python_callable=extract_data,
     dag=dag,
 )
+
+transform_task = PythonOperator(
+    task_id='transform_data',
+    python_callable=transform_data,
+    provide_context=True,
+    dag=dag,
+)
+
+load_task = PythonOperator(
+    task_id='load_data',
+    python_callable=load_data,
+    provide_context=True,
+    dag=dag,
+)
+
+# secuencia
+extract_task >> transform_task >> load_task

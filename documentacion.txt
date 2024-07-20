@@ -1,0 +1,25 @@
+# Proyecto: Pipeline ETL Automatizado
+
+## Autor: Camilo Lyons
+
+## Introducción
+Este proyecto tiene como objetivo construir un pipeline ETL que extrae datos de una API pública, los transforma y los carga en un Data Warehouse en Redshift. Además, se automatiza el proceso para lanzar alertas por e-mail cuando ciertos valores sobrepasan un límite configurado.
+
+## Arquitectura del Pipeline
+El pipeline ETL sigue estos pasos:
+1. **Extracción**: Datos extraídos de una API pública.
+2. **Transformación**: Datos transformados y limpiados utilizando pandas.
+3. **Carga**: Datos cargados en Redshift.
+
+## Modelado de la Base de Datos
+La base de datos en Redshift incluye las siguientes tablas:
+- **departamentos**: Almacena información sobre departamentos.
+
+```sql
+CREATE TABLE IF NOT EXISTS departamentos (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    date_extracted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_generated TIMESTAMP
+);
